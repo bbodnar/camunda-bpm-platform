@@ -40,6 +40,7 @@ import org.camunda.bpm.container.impl.spi.DeploymentOperationStep;
 import org.camunda.bpm.container.impl.spi.PlatformServiceContainer;
 import org.camunda.bpm.container.impl.spi.ServiceTypes;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.ProcessEngines;
 import org.camunda.bpm.engine.impl.ProcessEngineLogger;
 
 import javax.management.MBeanServer;
@@ -64,10 +65,22 @@ public class RuntimeContainerDelegateImpl implements RuntimeContainerDelegate, P
 
   protected MBeanServiceContainer serviceContainer = new MBeanServiceContainer();
 
+  protected String defaultEngineName = ProcessEngines.NAME_DEFAULT;
+
   public final static String SERVICE_NAME_EXECUTOR = "executor-service";
   public final static String SERVICE_NAME_PLATFORM_PLUGINS = "bpm-platform-plugins";
 
   // runtime container delegate implementation ///////////////////////////////////////////////
+
+  @Override
+  public void setDefaultEngineName(String processEngineName) {
+    defaultEngineName = processEngineName;
+  }
+
+  @Override
+  public String getDefaultEngineName() {
+    return defaultEngineName;
+  }
 
   @Override
   public void registerProcessEngine(ProcessEngine processEngine) {
@@ -98,6 +111,7 @@ public class RuntimeContainerDelegateImpl implements RuntimeContainerDelegate, P
     serviceContainer.createDeploymentOperation(operationName)
       .addAttachment(Attachments.PROCESS_APPLICATION, processApplication)
       .addSteps(getDeploymentSteps())
+      .setDefaultEngineName(getDefaultEngineName())
       .execute();
 
     LOG.paDeployed(processApplication.getName());

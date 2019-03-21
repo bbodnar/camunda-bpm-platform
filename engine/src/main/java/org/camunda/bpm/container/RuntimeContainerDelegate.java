@@ -53,6 +53,10 @@ public interface RuntimeContainerDelegate {
    */
   public void unregisterProcessEngine(ProcessEngine processEngine);
 
+  public void setDefaultEngineName(String processEngineName);
+
+  public String getDefaultEngineName();
+
   /**
    * Deploy a {@link AbstractProcessApplication} into the runtime container.
    *

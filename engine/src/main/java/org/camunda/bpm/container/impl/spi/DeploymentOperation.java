@@ -16,6 +16,7 @@
 package org.camunda.bpm.container.impl.spi;
 
 import org.camunda.bpm.container.impl.ContainerIntegrationLogger;
+import org.camunda.bpm.engine.ProcessEngines;
 import org.camunda.bpm.engine.impl.ProcessEngineLogger;
 
 import java.util.ArrayList;
@@ -69,6 +70,8 @@ public class DeploymentOperation {
 
   protected DeploymentOperationStep currentStep;
 
+  protected String defaultDeploymentEngine = ProcessEngines.NAME_DEFAULT;
+
   public DeploymentOperation(String name, PlatformServiceContainer container, List<DeploymentOperationStep> steps) {
     this.name = name;
     this.serviceContainer = container;
@@ -96,6 +99,10 @@ public class DeploymentOperation {
     } else {
       steps.add(step);
     }
+  }
+
+  public String getDefaultDeploymentEngine() {
+    return defaultDeploymentEngine;
   }
 
   public void serviceAdded(String serviceName) {
@@ -177,6 +184,7 @@ public class DeploymentOperation {
 
     protected PlatformServiceContainer container;
     protected String name;
+    protected String defaultEngineName = ProcessEngines.NAME_DEFAULT;
     protected boolean isUndeploymentOperation = false;
     protected List<DeploymentOperationStep> steps = new ArrayList<DeploymentOperationStep>();
     protected Map<String, Object> initialAttachments = new HashMap<String, Object>();
@@ -208,8 +216,14 @@ public class DeploymentOperation {
       return this;
     }
 
+    public DeploymentOperationBuilder setDefaultEngineName(String processEngineName) {
+      defaultEngineName = processEngineName;
+      return this;
+    }
+
     public void execute() {
       DeploymentOperation operation = new DeploymentOperation(name, container, steps);
+      operation.defaultDeploymentEngine = defaultEngineName;
       operation.isRollbackOnFailure = !isUndeploymentOperation;
       operation.attachments.putAll(initialAttachments);
       container.executeDeploymentOperation(operation);
